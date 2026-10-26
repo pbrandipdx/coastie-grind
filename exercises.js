@@ -1,6 +1,16 @@
 // How-to cues + demo search links, matched against plan item text.
 (function () {
   const E = [
+    [/inverted row/i, "Inverted row", ["Set the Smith bar at hip to waist height, hang under it with your body straight.", "Pull your chest to the bar, squeeze shoulder blades, lower slowly. Bend knees to make it easier."], "inverted row smith machine form"],
+    [/incline dumbbell press/i, "Incline dumbbell press", ["Set the bench to about 30 degrees, feet flat, shoulder blades pinched.", "Lower the dumbbells to upper chest height, press up and slightly together without locking elbows hard."], "incline dumbbell press form"],
+    [/assisted pull-up/i, "Assisted pull-up", ["Choose a weight that lets you do all reps with a full range. Less assistance as you get stronger.", "Grip slightly wider than shoulders, pull your chest to the bar, lower slowly. This is the best builder for lats and arms."], "assisted pull up machine form"],
+    [/lateral raise/i, "Dumbbell lateral raise", ["Light dumbbells at your sides, slight elbow bend.", "Raise to shoulder height, lead with your elbows, lower for three seconds. No swinging."], "dumbbell lateral raise form"],
+    [/front raise/i, "Dumbbell front raise", ["Light dumbbells in front of thighs.", "Raise to shoulder height with straight arms, lower slowly, keep your torso still."], "dumbbell front raise form"],
+    [/biceps curl|hammer curl/i, "Dumbbell curl", ["Elbows pinned to your sides, no body swing.", "Curl up, squeeze, lower for two to three seconds. Hammer curl: palms face each other."], "dumbbell biceps curl form"],
+    [/triceps pushdown/i, "Cable triceps pushdown", ["Elbows tight to your sides, chest up.", "Press the handle down until your arms are straight, return slowly to 90 degrees."], "cable triceps pushdown form"],
+    [/face pull/i, "Face pull", ["Rope at upper-chest height, pull toward your face with elbows high and wide.", "Squeeze shoulder blades together. This protects your shoulders for all the push-ups."], "cable face pull form"],
+    [/dips/i, "Assisted dips / bench dips", ["Lower until your elbows reach about 90 degrees, shoulders stay down away from your ears.", "Use the assist machine to take weight off. Keep bench dips shallow if the shoulders feel pinchy."], "assisted dip machine form"],
+    [/push-up hold/i, "Push-up hold", ["Hold the top of a push-up with a tight body, hands under shoulders.", "Great for pushing endurance."], "push up plank hold form"],
     [/circuit/i, "Circuit", ["Do each move back to back, rest 90 seconds after the full round.", "Keep reps clean over fast."], "bodyweight circuit workout gym"],
     [/push-up ladder|^Push-ups|push-ups: 3 sets|Push-ups: max/i, "Push-up", ["Hands just wider than shoulders, body in one straight line from head to heels.", "Lower until your chest is a fist from the floor, elbows about 45 degrees from your sides.", "Press up until your arms lock out. Too hard? Use a Smith machine bar set at hip height (incline), or drop to your knees."], "push up proper form beginner"],
     [/sit-ups/i, "Sit-up", ["Lie on your back, knees bent, feet held down. Hands crossed on your chest or behind your head.", "Curl up until your shoulder blades leave the mat and you reach upright, then lower under control.", "Do not yank your neck. Exhale on the way up."], "sit up proper form coast guard"],

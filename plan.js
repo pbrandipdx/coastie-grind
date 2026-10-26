@@ -49,6 +49,8 @@
         WARM,
         lowImpact ? "Bike or rower intervals: " + lowIntervals[w - 1] : "Treadmill intervals: " + runBack[w - 5] + "." + GATE,
         "Push-up ladder: " + ps + " sets of " + pr + " (incline on the Smith machine bar if form breaks down), rest 60-90 sec",
+        "Chest and shoulders: dumbbell chest press 3 x 10, dumbbell lateral raise 2 x 12, dumbbell front raise 2 x 10",
+        "Assisted dips (machine) or bench dips: 3 x 8",
         COOL, ankleCheck] };
       case 1: return { title: "Lower Body Strength + Core", icon: "lift", items: [
         "5 min bike warm-up",
@@ -64,13 +66,20 @@
         WARM,
         lowImpact ? "Treadmill incline walk (3.0-3.5 mph, 8-12% incline) or elliptical: " + easyMin[w - 1] + " min steady" : "Easy conversational jog on the treadmill: " + easyMin[w - 1] + " min (walk breaks are fine)." + GATE,
         "Stair climber: 10 min steady (stop if the ankle hurts)",
+        "Upper-body pump (15 min, light and quick): face pull 3 x 15, dumbbell shoulder press 2 x 12, seated cable row 2 x 15, cable triceps pushdown 2 x 15",
+        "Push-ups: 2 sets of " + Math.max(5, pushReps(w) - 3) + ", easy and clean",
         "Mobility: hips, hamstrings, thoracic rotations, gentle ankle circles, 8 min", ankleCheck] };
-      case 3: return { title: "Upper Body + Core", icon: "lift", items: [
+      case 3: return { title: "Upper Body Strength + Core", icon: "lift", items: [
         "5 min rower or elliptical warm-up",
         "Lat pulldown: 3 x 12",
         "Dumbbell bench or machine chest press: 3 x 10",
         "Seated cable row: 3 x 12",
         "Dumbbell shoulder press: 3 x 10",
+        "Incline dumbbell press (bench at 30 degrees): 3 x 10",
+        "Assisted pull-up machine or band-assisted pull-ups: 3 x " + (6 + Math.floor(w / 2)),
+        "Dumbbell lateral raise: 2 x 12",
+        "Dumbbell biceps curl: 2 x 12",
+        "Cable triceps pushdown: 2 x 12",
         "Push-ups: 3 sets to 2 reps short of failure",
         "Plank variations (forearm, side planks 30 sec each side): 3 rounds",
         "Captain's-chair knee raises or lying leg raises: 3 x 10"] };
@@ -79,6 +88,7 @@
         { title: "Full-Body Circuit + Sit-ups", icon: "bolt", items: [
         "5 min warm-up",
         "Circuit, " + (w <= 4 ? 3 : 4) + " rounds, 90 sec rest between rounds: 12 goblet squats, " + pr + " push-ups, 12 cable rows, " + Math.min(60, 15 + 4 * w) + " sec plank, " + (w >= 5 ? "10 dumbbell step-ups per leg" : "15 glute bridges"),
+        "Upper-body finisher: inverted row on the Smith machine bar 3 x 10, dumbbell hammer curl 2 x 12, push-up hold at the top 3 x 20 sec",
         "Timed sit-ups: 1 min max reps (record it), then 2 x " + situps(w) + " controlled",
         COOL, ankleCheck] };
       case 5:
