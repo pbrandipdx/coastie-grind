@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b2545">
+<meta name="color-scheme" content="light">
 <title>THE COASTIE GRIND</title>
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -11,7 +12,6 @@
 <header class="top">
   <div class="brand"><span class="stripe"></span><h1>THE COASTIE GRIND</h1></div>
   <div class="count"><strong id="countNum">--</strong><span>days to ship</span></div>
-  <button id="authBtn" class="ghost">Sign in to sync</button>
 </header>
 
 <nav class="tabs" role="tablist">
@@ -28,25 +28,9 @@
   <section id="fuel" class="pane"></section>
 </main>
 
-<dialog id="authDlg">
-  <form method="dialog" id="authForm">
-    <h2>Sync your progress</h2>
-    <p class="muted">Sign in to save progress to the cloud and use it on any device. Skip it and everything stays on this device.</p>
-    <label>Email <input type="email" id="authEmail" required autocomplete="email"></label>
-    <label>Password <input type="password" id="authPw" required minlength="6" autocomplete="current-password"></label>
-    <p id="authMsg" class="muted"></p>
-    <div class="row">
-      <button type="button" id="signInBtn" class="primary">Sign in</button>
-      <button type="button" id="signUpBtn">Create account</button>
-      <button type="button" id="authClose" class="ghost">Close</button>
-    </div>
-  </form>
-</dialog>
-
 <footer>Not medical advice. Check the current Coast Guard standards with your recruiter.</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js"></script>
+<script src="exercises.js"></script>
 <script src="plan.js"></script>
 <script src="app.js"></script>
 </body>

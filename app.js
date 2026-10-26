@@ -14,14 +14,7 @@
   let pain = LS.get("cg_pain", {});          // { "2026-10-26": 2 }
   let selected = P.fmt(new Date());
   if (selected < P.fmt(P.START)) selected = P.fmt(P.START);
-  let sb = null, user = null;
-
-  const cfg = window.CG_CONFIG || {};
-  if (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && window.supabase) {
-    sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
-  } else {
-    $("#authBtn").style.display = "none";
-  }
+  const sb = null, user = null; // local-only: progress is stored in this browser
 
   const mmss = s => s == null ? "-" : Math.floor(s / 60) + ":" + String(Math.round(s % 60)).padStart(2, "0");
   const parseMMSS = v => { if (!v) return null; const m = String(v).trim().split(":"); return m.length === 2 ? (+m[0]) * 60 + (+m[1]) : (+v || null); };
@@ -44,6 +37,13 @@
   }
 
   // ---- views ----
+  function itemHtml(text) {
+    const ex = window.CGEx && window.CGEx(text);
+    if (!ex) return '<li style="padding:10px 0">' + esc(text) + '</li>';
+    return '<li style="padding:0"><details class="ex"><summary><span>' + esc(text) + '</span></summary><div class="how"><b>' + esc(ex.name) + '</b><ul>' +
+      ex.cues.map(c => '<li style="border:0;padding:2px 0">' + esc(c) + '</li>').join("") + '</ul><a href="https://www.youtube.com/results?search_query=' + encodeURIComponent(ex.q) + '" target="_blank" rel="noopener">Watch demo videos</a></div></details></li>';
+  }
+
   function renderToday() {
     const date = P.parse(selected), plan = P.planFor(date), s = stats();
     const isDone = !!done[selected];
@@ -53,7 +53,7 @@
       '<div class="bar"><i style="width:' + s.pct + '%"></i></div>' +
       '<div class="card"><span class="tag o">' + esc(plan.phase) + '</span>' + (plan.week >= 1 && plan.week <= 11 ? '<span class="tag">Week ' + plan.week + '</span>' : '') +
       '<h2 style="margin-top:10px">' + esc(plan.title) + '</h2><div class="muted">' + esc(nice) + '</div>' +
-      '<ul class="steps">' + plan.items.map(i => '<li>' + esc(i) + '</li>').join("") + '</ul>' +
+      '<ul class="steps">' + plan.items.map(itemHtml).join("") + '</ul>' +
       (plan.test ? '<button class="primary bigdone" id="goTest">Log test results</button>' : '') +
       '<label style="margin-top:10px">Ankle pain today (0 = none, 10 = worst)<select id="painSel"><option value="">-</option>' +
       [0,1,2,3,4,5,6,7,8,9,10].map(n => '<option value="' + n + '"' + (pain[selected] === n ? " selected" : "") + '>' + n + '</option>').join("") + '</select></label>' +
@@ -184,33 +184,7 @@
     sb.from("cg_test_results").upsert(Object.assign({ user_id: user.id }, rec)).then(r => { if (r.error) console.warn(r.error.message); });
   }
 
-  // ---- sync ----
-  async function pull() {
-    if (!sb || !user) return;
-    const [l, t] = await Promise.all([sb.from("cg_workout_logs").select("day,done,ankle_pain"), sb.from("cg_test_results").select("*")]);
-    if (!l.error) { l.data.forEach(r => { if (r.done) done[r.day] = true; if (r.ankle_pain != null && pain[r.day] == null) pain[r.day] = r.ankle_pain; }); }
-    if (!t.error) {
-      const ids = new Set(tests.map(x => x.id));
-      t.data.forEach(r => { if (!ids.has(r.id)) tests.push({ id: r.id, tested_on: r.tested_on, pushups: r.pushups, situps: r.situps, plank_seconds: r.plank_seconds, run_seconds: r.run_seconds, swim_note: r.swim_note }); });
-    }
-    // push local-only items up
-    const remoteDays = new Set((l.data || []).map(r => r.day));
-    const localDays = new Set(Object.keys(done).filter(k => done[k]).concat(Object.keys(pain)));
-    const missingLogs = Array.from(localDays).filter(k => !remoteDays.has(k)).map(k => ({ user_id: user.id, day: k, done: !!done[k], ankle_pain: pain[k] == null ? null : pain[k] }));
-    if (missingLogs.length) await sb.from("cg_workout_logs").upsert(missingLogs);
-    const remoteIds = new Set((t.data || []).map(r => r.id));
-    const missingTests = tests.filter(x => !remoteIds.has(x.id)).map(x => Object.assign({ user_id: user.id }, x));
-    if (missingTests.length) await sb.from("cg_test_results").upsert(missingTests);
-    LS.set("cg_done", done); LS.set("cg_tests", tests); LS.set("cg_pain", pain);
-    renderAll();
-  }
-  function setUser(u) {
-    user = u;
-    $("#authBtn").textContent = u ? "Signed in. Sign out" : "Sign in to sync";
-    if (u) pull();
-  }
-
-  // ---- tabs / auth UI ----
+  // ---- tabs ----
   function showTab(name) {
     document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
     document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id === name));
@@ -219,25 +193,6 @@
   }
   document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
 
-  if (sb) {
-    $("#authBtn").onclick = async () => {
-      if (user) { await sb.auth.signOut(); setUser(null); return; }
-      $("#authMsg").textContent = ""; $("#authDlg").showModal();
-    };
-    $("#authClose").onclick = () => $("#authDlg").close();
-    const run = async mode => {
-      const email = $("#authEmail").value.trim(), password = $("#authPw").value;
-      if (!email || password.length < 6) { $("#authMsg").textContent = "Enter an email and a password of 6+ characters."; return; }
-      const r = mode === "in" ? await sb.auth.signInWithPassword({ email, password }) : await sb.auth.signUp({ email, password });
-      if (r.error) { $("#authMsg").textContent = r.error.message; return; }
-      if (mode === "up" && !r.data.session) { $("#authMsg").textContent = "Check your email to confirm, then sign in."; return; }
-      $("#authDlg").close();
-    };
-    $("#signInBtn").onclick = () => run("in");
-    $("#signUpBtn").onclick = () => run("up");
-    sb.auth.onAuthStateChange((_e, session) => setUser(session ? session.user : null));
-    sb.auth.getSession().then(r => setUser(r.data.session ? r.data.session.user : null));
-  }
 
   function renderAll() { updateCountdown(); renderToday(); renderPlan(); renderTests(); renderFuel(); }
   renderAll();
