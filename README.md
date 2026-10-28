@@ -11,4 +11,4 @@ Unofficial training plan. Not affiliated with or endorsed by the U.S. Coast Guar
 ## Check-ins (optional)
 After a workout she taps "I finished today" (ankle score, notes, and push-ups/plank on test days). Data goes to Supabase through two functions, `submit_checkin` and `list_checkins`, both gated by a secret family code stored in the `family_code` table (never in this repo). The tables themselves are locked by RLS.
 - Open `#/join/<code>` once on her phone to unlock check-ins.
-- Open `#/family` to see the log.
+- Open `#/family` to see the check-in log. The Tests tab logs push-ups, plank and run/row times against the pass marks (shared through the same code).

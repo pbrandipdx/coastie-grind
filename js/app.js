@@ -24,11 +24,13 @@
     '<svg width="34" height="26" viewBox="0 0 34 26"><rect width="34" height="26" fill="#fff"/><rect width="34" height="5.2" fill="#0B3D91"/><rect y="10.4" width="34" height="5.2" fill="#C8332A"/><rect y="20.8" width="34" height="5.2" fill="#0B3D91"/></svg>' +
     '<svg width="34" height="26" viewBox="0 0 34 26"><rect width="34" height="26" fill="#F5C400"/><g fill="#0B3D91"><rect x="5.7" width="5.7" height="26"/><rect x="17" width="5.7" height="26"/><rect x="28.3" width="5.7" height="26"/></g></svg></div>';
 
-  function header(active, d) {
+  function header(active) {
     var left = Math.max(0, Math.round((SHIPD - today()) / 86400000));
-    return '<header class="head"><div class="head-top">' + FLAGS +
-      '<nav class="nav" aria-label="Main"><a href="#/" ' + (active === 'day' ? 'aria-current="page"' : '') + '>TODAY</a><a href="#/plan" ' + (active === 'plan' ? 'aria-current="page"' : '') + '>THE PLAN</a>' + (code() ? '<a href="#/family" ' + (active === 'family' ? 'aria-current="page"' : '') + '>CHECK-INS</a>' : '') + '</nav></div>' +
-      '<div class="brand">THE COASTIE GRIND</div><div class="count">' + (left > 0 ? left + ' DAYS TO SHIP DAY · TUE JAN 12' : 'SHIP DAY') + '</div></header>';
+    var tabs = [['day', '#/', 'TODAY'], ['plan', '#/plan', 'PLAN'], ['tests', '#/tests', 'TESTS'], ['fuel', '#/fuel', 'FUEL']];
+    if (code()) tabs.push(['family', '#/family', 'LOG']);
+    return '<header class="head"><div class="head-top">' + FLAGS + '<div class="count" style="margin:0;text-align:right">' + (left > 0 ? left + ' DAYS TO SHIP DAY<br>TUE JAN 12' : 'SHIP DAY') + '</div></div>' +
+      '<div class="brand">THE COASTIE GRIND</div>' +
+      '<nav class="tabs" aria-label="Main">' + tabs.map(function (t) { return '<a href="' + t[1] + '" ' + (active === t[0] ? 'aria-current="page"' : '') + '>' + t[2] + '</a>'; }).join('') + '</nav></header>';
   }
   var FOOT = '<div class="wrap"><p class="small">Unofficial training plan. Not affiliated with or endorsed by the U.S. Coast Guard. Test standards (15 push-ups in 60 sec, 1:09 forearm plank, 1.5-mile run in 15:05) assume a woman under 30; confirm yours with your recruiter. If an exercise hurts your ankle, stop and check with your PT or doctor.</p></div>';
 
@@ -71,6 +73,7 @@
       h += '<div class="card daycard"><div class="kick">' + kick + '</div><h1 class="dtitle">' + esc(day.title) + '</h1><div class="chips"><span class="chip">' + day.minutes + ' MIN</span><span class="chip">PLANET FITNESS</span>' + (day.noImpact ? '<span class="chip red">NO IMPACT</span>' : '') + '</div></div>';
       h += '<div class="marks" aria-label="Test pass marks"><div class="mark"><b>15</b><span>PUSH-UPS / 60 SEC</span></div><div class="mark"><b>1:09</b><span>FOREARM PLANK</span></div><div class="mark"><b>15:05</b><span>1.5-MILE RUN</span></div></div>';
       h += day.blocks.map(blockHTML).join('');
+      if (day.title === 'Mock Test') h += '<a class="btn" style="text-decoration:none" href="#/tests">LOG YOUR TEST RESULTS</a><div style="height:14px"></div>';
       h += code() ? checkinHTML(day) : '';
       var txt = P.stravaText(day);
       h += '<section class="strava"><h3>AFTER YOU FINISH</h3><p>Copy this and paste it into the Strava description.</p><textarea id="st" readonly rows="8" aria-label="Workout text for Strava">' + esc(txt) + '</textarea><button class="btn" id="cp" type="button">COPY FOR STRAVA</button></section>';
@@ -167,6 +170,96 @@
     }).catch(function () { document.getElementById('fl').innerHTML = '<p>Could not load. The code may be wrong.</p><button class="btn ghost" id="fcr" type="button">Re-enter code</button>'; document.getElementById('fcr').onclick = function () { store('cg.code', ''); renderFamily(); }; });
   }
 
+
+  /* ---------- tests ---------- */
+  var GOAL = { pushups: 15, plank: 69, run: 905, row: 640 };
+  function mmss(sec) { if (sec == null) return '-'; return Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2); }
+  function parseTime(v) {
+    v = String(v || '').trim(); if (!v) return null;
+    var m = /^(\d+):([0-5]?\d)$/.exec(v); if (m) return +m[1] * 60 + +m[2];
+    return /^\d+$/.test(v) ? parseInt(v, 10) : NaN;
+  }
+  function localTests() { try { return JSON.parse(store('cg.tests') || '[]'); } catch (e) { return []; } }
+  function saveLocal(rows) { store('cg.tests', JSON.stringify(rows)); }
+  function loadTests() {
+    if (!code()) return Promise.resolve(localTests());
+    return rpc('list_tests', { p_code: code() }).then(function (rows) { rows = rows || []; saveLocal(rows); return rows; }).catch(function () { return localTests(); });
+  }
+  function meets(t) {
+    var cg = t.cardio_kind === 'row' ? GOAL.row : GOAL.run;
+    return { p: t.pushups != null && t.pushups >= GOAL.pushups, pl: t.plank_seconds != null && t.plank_seconds >= GOAL.plank, c: t.cardio_seconds != null && (t.cardio_kind === 'bike' ? false : t.cardio_seconds <= cg) };
+  }
+  function meter(label, now, goalTxt, pct, ok, nowTxt) {
+    return '<div class="meter"><div class="mh"><b>' + label + '</b><span class="small">goal ' + goalTxt + '</span></div><div class="bar" role="img" aria-label="' + label + ' progress ' + Math.round(pct) + ' percent"><i style="width:' + Math.max(2, Math.min(100, pct)) + '%" class="' + (ok ? 'ok' : '') + '"></i></div><div class="mv">' + nowTxt + (ok ? ' <b class="yes">✓</b>' : '') + '</div></div>';
+  }
+  function renderTests() {
+    var h = header('tests') + '<main class="wrap"><h1 class="dtitle" style="margin:4px 0 6px">TEST TRACKER</h1><p style="margin:0 0 14px;color:#2F4A63">Log a mock test any time. Friday is test day in the plan.</p><div id="tt"><div class="card"><p class="small">Loading…</p></div></div></main>' + FOOT;
+    app.innerHTML = h; document.title = 'Tests · THE COASTIE GRIND'; window.scrollTo(0, 0);
+    loadTests().then(drawTests);
+  }
+  function drawTests(rows) {
+    rows = rows.slice().sort(function (a, b) { return a.tested_on < b.tested_on ? 1 : -1; });
+    var bestP = null, bestPl = null, bestRun = null, bestRow = null;
+    rows.forEach(function (t) {
+      if (t.pushups != null) bestP = Math.max(bestP == null ? 0 : bestP, t.pushups);
+      if (t.plank_seconds != null) bestPl = Math.max(bestPl == null ? 0 : bestPl, t.plank_seconds);
+      if (t.cardio_seconds != null && t.cardio_kind === 'run') bestRun = bestRun == null ? t.cardio_seconds : Math.min(bestRun, t.cardio_seconds);
+      if (t.cardio_seconds != null && t.cardio_kind === 'row') bestRow = bestRow == null ? t.cardio_seconds : Math.min(bestRow, t.cardio_seconds);
+    });
+    var h = '<div class="card"><h3 style="font-size:18px;margin-bottom:10px">BEST SO FAR vs PASS MARK</h3>' +
+      meter('Push-ups in 60 sec', bestP, '15', bestP == null ? 0 : bestP / GOAL.pushups * 100, bestP != null && bestP >= GOAL.pushups, bestP == null ? 'No test yet' : bestP + ' reps') +
+      meter('Forearm plank', bestPl, '1:09', bestPl == null ? 0 : bestPl / GOAL.plank * 100, bestPl != null && bestPl >= GOAL.plank, bestPl == null ? 'No test yet' : mmss(bestPl)) +
+      meter('1.5-mile run', bestRun, '15:05', bestRun == null ? 0 : GOAL.run / bestRun * 100, bestRun != null && bestRun <= GOAL.run, bestRun == null ? 'No run test yet' : mmss(bestRun)) +
+      meter('2,000 m row (alternate)', bestRow, '10:40', bestRow == null ? 0 : GOAL.row / bestRow * 100, bestRow != null && bestRow <= GOAL.row, bestRow == null ? 'No row test yet' : mmss(bestRow)) + '</div>';
+    h += '<form class="card checkin" id="tf"><h3 style="font-size:18px;margin-bottom:10px">LOG A TEST</h3>' +
+      '<label class="lb">Date<input id="t-d" type="date" min="2026-10-26" max="2027-01-12" value="' + key(clamp(today())) + '"></label>' +
+      '<div class="two"><label class="lb">Push-ups<input id="t-p" type="number" inputmode="numeric" min="0" placeholder="in 60 sec"></label><label class="lb">Plank<input id="t-pl" type="text" inputmode="numeric" placeholder="1:05 or 65"></label></div>' +
+      '<div class="two"><label class="lb">Cardio<select id="t-k"><option value="">None</option><option value="run">1.5-mile run</option><option value="row">2,000 m row</option><option value="bike">Bike (not scored)</option></select></label><label class="lb">Time<input id="t-c" type="text" inputmode="numeric" placeholder="15:30"></label></div>' +
+      '<input id="t-n" type="text" maxlength="300" placeholder="Notes (optional)"><button class="btn" type="submit">SAVE TEST</button><p class="small" id="t-m" role="status"></p></form>';
+    h += '<div class="card"><h3 style="font-size:18px;margin-bottom:6px">HISTORY</h3>' + (rows.length ? rows.map(function (t) {
+      var m = meets(t), bits = [];
+      if (t.pushups != null) bits.push('<span class="' + (m.p ? 'g' : '') + '">' + t.pushups + ' push-ups</span>');
+      if (t.plank_seconds != null) bits.push('<span class="' + (m.pl ? 'g' : '') + '">plank ' + mmss(t.plank_seconds) + '</span>');
+      if (t.cardio_seconds != null) bits.push('<span class="' + (m.c ? 'g' : '') + '">' + (t.cardio_kind === 'row' ? '2k row ' : t.cardio_kind === 'bike' ? 'bike ' : '1.5 mi ') + mmss(t.cardio_seconds) + '</span>');
+      return '<div class="frow"><div class="fd"><b>' + P.label(parse(t.tested_on)) + '</b></div><div class="fs"><button class="x" data-del="' + t.tested_on + '" aria-label="Delete test ' + t.tested_on + '">×</button></div><div class="fb">' + bits.join(' · ') + (t.notes ? '<br><span class="small">' + esc(t.notes) + '</span>' : '') + '</div></div>';
+    }).join('') : '<p class="small">No tests yet. Try a mini test this Friday.</p>') + '</div>';
+    if (!code()) h += '<p class="small">Saved on this phone only. Open your family link to share results.</p>';
+    document.getElementById('tt').innerHTML = h;
+    var f = document.getElementById('tf'), msg = document.getElementById('t-m');
+    f.onsubmit = function (e) {
+      e.preventDefault();
+      var pl = parseTime(document.getElementById('t-pl').value), cs = parseTime(document.getElementById('t-c').value), kind = document.getElementById('t-k').value;
+      var pu = document.getElementById('t-p').value === '' ? null : parseInt(document.getElementById('t-p').value, 10);
+      if (isNaN(pl) || isNaN(cs)) { msg.textContent = 'Use times like 1:05 or 65.'; return; }
+      if (cs != null && !kind) { msg.textContent = 'Pick which cardio test that time is for.'; return; }
+      if (pu == null && pl == null && cs == null) { msg.textContent = 'Enter at least one result.'; return; }
+      var rec = { tested_on: document.getElementById('t-d').value, pushups: pu, plank_seconds: pl, cardio_kind: cs == null ? null : kind, cardio_seconds: cs, notes: document.getElementById('t-n').value || null };
+      msg.textContent = 'Saving…';
+      var local = localTests().filter(function (x) { return x.tested_on !== rec.tested_on; }); local.push(rec); saveLocal(local);
+      var done = function () { loadTests().then(drawTests); };
+      if (!code()) return done();
+      rpc('submit_test', { p_code: code(), p_day: rec.tested_on, p_pushups: rec.pushups, p_plank: rec.plank_seconds, p_kind: rec.cardio_kind, p_cardio: rec.cardio_seconds, p_notes: rec.notes }).then(done).catch(function () { msg.textContent = 'Saved on this phone, but could not sync. Try again later.'; });
+    };
+    Array.prototype.forEach.call(document.querySelectorAll('[data-del]'), function (b) {
+      b.onclick = function () {
+        var d = b.getAttribute('data-del');
+        if (!window.confirm('Delete the test from ' + d + '?')) return;
+        saveLocal(localTests().filter(function (x) { return x.tested_on !== d; }));
+        if (code()) rpc('delete_test', { p_code: code(), p_day: d }).then(function () { loadTests().then(drawTests); }).catch(function () { loadTests().then(drawTests); }); else drawTests(localTests());
+      };
+    });
+  }
+
+  /* ---------- fuel & recover ---------- */
+  function renderFuel() {
+    function card(t, items) { return '<section class="card"><h3 style="font-size:18px;margin-bottom:6px">' + t + '</h3><ul class="tips">' + items.map(function (i) { return '<li><b>' + i[0] + '</b> ' + i[1] + '</li>'; }).join('') + '</ul></section>'; }
+    app.innerHTML = header('fuel') + '<main class="wrap"><h1 class="dtitle" style="margin:4px 0 14px">FUEL &amp; RECOVER</h1>' +
+      card('FUEL', [['Protein at every meal.', 'Eggs, chicken, Greek yogurt, beans, tuna or a shake help your muscles rebuild.'], ['Carbs before hard days.', 'A banana, oatmeal or toast an hour before intervals or a test.'], ['Water all day.', 'Pale yellow is the goal. Sip during workouts.'], ['Eat within an hour after.', 'Protein plus carbs. Chocolate milk and a sandwich both work.'], ['Keep it simple.', 'Whole foods most of the time. No crash diets while training this hard.']]) +
+      card('RECOVER', [['Sleep 8 to 9 hours.', 'This is when your body adapts. Boot camp sleep is short, so bank it now.'], ['Take Sundays.', 'Rest days are part of the plan.'], ['Ankle first.', 'Sharp or increasing pain means stop and check with your PT or doctor. Do the 5 minute ankle reset on rest days.'], ['Shoes matter.', 'Get properly fitted running shoes and break them in before Jan 12.']]) +
+      card('PLANET FITNESS TIPS', [['Machines are first come.', 'Go off-peak if you can. Weekday evenings are busy.'], ['No barbells.', 'Dumbbells, Smith machine, cables and plate-loaded machines cover this plan.'], ['Ask for a walkthrough.', 'Staff will show you the machines for free.'], ['No pool.', 'Check with your recruiter how swimming will be tested, then find a community pool if needed.']]) + '</main>' + FOOT;
+    document.title = 'Fuel and Recover · THE COASTIE GRIND'; window.scrollTo(0, 0);
+  }
+
   function bind() {
     bindCheckin();
     var cp = document.getElementById('cp'), st = document.getElementById('st'), rc = document.getElementById('rc');
@@ -191,6 +284,8 @@
     var h = (location.hash || '').replace(/^#\/?/, '');
     var j = /^join\/([A-Za-z0-9]+)$/.exec(h);
     if (j) { store('cg.code', j[1]); location.replace('#/'); return; }
+    if (h === 'tests') return renderTests();
+    if (h === 'fuel') return renderFuel();
     if (h === 'family') return renderFamily();
     if (h === 'plan') return renderPlan();
     var d = parse(h);
