@@ -19,6 +19,38 @@
     return fetch(CFG.url + '/rest/v1/rpc/' + fn, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: CFG.anon, Authorization: 'Bearer ' + CFG.anon }, body: JSON.stringify(body) })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.status === 204 ? null : r.text().then(function (t) { return t ? JSON.parse(t) : null; }); });
   }
+
+  /* ---------- completion state ---------- */
+  function doneMap() { try { return JSON.parse(store('cg.done') || '{}'); } catch (e) { return {}; } }
+  function saveDone(m) { store('cg.done', JSON.stringify(m)); }
+  function streak() {
+    var m = doneMap(), t = today(), n = 0, d = t > SHIPD ? SHIPD : t;
+    if (d < FIRST) return 0;
+    for (; d >= FIRST; d = addDays(d, -1)) {
+      if (m[key(d)]) n++;
+      else if (key(d) === key(t)) continue;           // today not finished yet: does not break the streak
+      else if (P.getDay(d).rest) continue;            // rest days never break it
+      else break;
+    }
+    return n;
+  }
+  var syncing = false;
+  function syncDone() {
+    if (!code() || syncing) return; syncing = true;
+    rpc('list_checkins', { p_code: code() }).then(function (rows) {
+      var srv = {}, loc = doneMap(), changed = false;
+      (rows || []).forEach(function (r) { srv[r.day] = !!r.done; });
+      Object.keys(loc).forEach(function (k) { if (loc[k] && !srv[k]) rpc('submit_checkin', { p_code: code(), p_day: k, p_done: true, p_ankle: null, p_pushups: null, p_plank: null, p_notes: null }).catch(function () {}); });
+      var merged = {}; Object.keys(srv).forEach(function (k) { if (srv[k]) merged[k] = true; });
+      Object.keys(loc).forEach(function (k) { if (loc[k]) merged[k] = true; });
+      if (JSON.stringify(merged) !== JSON.stringify(loc)) { saveDone(merged); changed = true; }
+      syncing = false; if (changed) route();
+    }).catch(function () { syncing = false; });
+  }
+  function setDone(day, val) {
+    var m = doneMap(); if (val) m[day] = true; else delete m[day]; saveDone(m);
+    if (code()) rpc('submit_checkin', { p_code: code(), p_day: day, p_done: !!val, p_ankle: null, p_pushups: null, p_plank: null, p_notes: null }).catch(function () {});
+  }
   var CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   var FLAGS = '<div class="flags" aria-hidden="true">' +
     '<svg width="34" height="26" viewBox="0 0 34 26"><rect width="34" height="26" fill="#fff"/><rect width="34" height="5.2" fill="#0B3D91"/><rect y="10.4" width="34" height="5.2" fill="#C8332A"/><rect y="20.8" width="34" height="5.2" fill="#0B3D91"/></svg>' +
@@ -28,7 +60,7 @@
     var left = Math.max(0, Math.round((SHIPD - today()) / 86400000));
     var tabs = [['day', '#/', 'TODAY'], ['plan', '#/plan', 'PLAN'], ['tests', '#/tests', 'TESTS'], ['fuel', '#/fuel', 'FUEL']];
     if (code()) tabs.push(['family', '#/family', 'LOG']);
-    return '<header class="head"><div class="head-top">' + FLAGS + '<div class="count" style="margin:0;text-align:right">' + (left > 0 ? left + ' DAYS TO SHIP DAY<br>TUE JAN 12' : 'SHIP DAY') + '</div></div>' +
+    return '<header class="head"><div class="head-top">' + FLAGS + (streak() > 0 ? '<div class="streak" title="Days in a row" aria-label="' + streak() + ' day streak">🔥 ' + streak() + '</div>' : '') + '<div class="count" style="margin:0;text-align:right">' + (left > 0 ? left + ' DAYS TO SHIP DAY<br>TUE JAN 12' : 'SHIP DAY') + '</div></div>' +
       '<div class="brand">THE COASTIE GRIND</div>' +
       '<nav class="tabs" aria-label="Main">' + tabs.map(function (t) { return '<a href="' + t[1] + '" ' + (active === t[0] ? 'aria-current="page"' : '') + '>' + t[2] + '</a>'; }).join('') + '</nav></header>';
   }
@@ -52,10 +84,15 @@
   }
 
   function strip(d) {
-    var mon = addDays(d, -((d.getDay() + 6) % 7)), t = key(today()), h = '<nav class="strip" aria-label="Days this week">';
+    var mon = addDays(d, -((d.getDay() + 6) % 7)), t = key(today()), m = doneMap(), h = '<nav class="strip" aria-label="Days this week">';
     for (var i = 0; i < 7; i++) {
-      var x = addDays(mon, i), k = key(x), ok = x >= FIRST && x <= SHIPD;
-      h += (ok ? '<a href="#/' + k + '"' : '<a aria-disabled="true" style="opacity:.35;pointer-events:none"') + ' class="' + (k === key(d) ? 'sel ' : '') + (k === t ? 'today' : '') + '"><span class="d">' + DOW[x.getDay()] + '</span><span class="n">' + x.getDate() + '</span></a>';
+      var x = addDays(mon, i), k = key(x), ok = x >= FIRST && x <= SHIPD, cls = '', mark = '', lab = '';
+      if (ok) {
+        var rest = P.getDay(x).rest;
+        if (m[k]) { cls += 'done '; mark = '✓'; lab = ', completed'; }
+        else if (k < t && !rest) { cls += 'missed '; mark = '✕'; lab = ', missed'; }
+      }
+      h += (ok ? '<a href="#/' + k + '"' : '<a aria-disabled="true" style="opacity:.35;pointer-events:none"') + ' aria-label="' + P.label(x) + lab + '" class="' + cls + (k === key(d) ? 'sel ' : '') + (k === t ? 'today' : '') + '"><span class="d">' + DOW[x.getDay()] + '</span><span class="n">' + x.getDate() + '</span><span class="mk">' + mark + '</span></a>';
     }
     return h + '</nav>';
   }
@@ -70,7 +107,8 @@
       h += '<div class="ship"><div class="disp" style="font-size:13px;letter-spacing:.14em">TUESDAY, JANUARY 12</div><h2>SHIP DAY</h2><p>You did the work. Rest, eat, bring your paperwork, and go show them.</p></div>';
     } else {
       var kick = 'WEEK ' + day.week + ' · ' + day.label.toUpperCase() + ' · ' + day.phase.name.toUpperCase();
-      h += '<div class="card daycard"><div class="kick">' + kick + '</div><h1 class="dtitle">' + esc(day.title) + '</h1><div class="chips"><span class="chip">' + day.minutes + ' MIN</span><span class="chip">PLANET FITNESS</span>' + (day.noImpact ? '<span class="chip red">NO IMPACT</span>' : '') + '</div></div>';
+      var dk = key(d), isDone = !!doneMap()[dk], future = dk > key(today());
+      h += '<div class="card daycard"><button class="chk' + (isDone ? ' on' : '') + '" id="chk" type="button" ' + (future ? 'disabled ' : '') + 'aria-pressed="' + isDone + '" aria-label="' + (isDone ? 'Completed. Tap to undo' : 'Mark workout complete') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><div class="kick">' + kick + '</div><h1 class="dtitle">' + esc(day.title) + '</h1><div class="chips"><span class="chip">' + day.minutes + ' MIN</span><span class="chip">PLANET FITNESS</span>' + (day.noImpact ? '<span class="chip red">NO IMPACT</span>' : '') + (isDone ? '<span class="chip ok">DONE ✓</span>' : '') + '</div></div>';
       h += '<div class="marks" aria-label="Test pass marks"><div class="mark"><b>15</b><span>PUSH-UPS / 60 SEC</span></div><div class="mark"><b>1:09</b><span>FOREARM PLANK</span></div><div class="mark"><b>15:05</b><span>1.5-MILE RUN</span></div></div>';
       h += day.blocks.map(blockHTML).join('');
       if (day.title === 'Mock Test') h += '<a class="btn" style="text-decoration:none" href="#/tests">LOG YOUR TEST RESULTS</a><div style="height:14px"></div>';
@@ -112,11 +150,11 @@
     var mock = day.title === 'Mock Test' || day.title === 'Upper Body and Core';
     var opts = '<option value="">Ankle pain (0 to 10)</option>';
     for (var i = 0; i <= 10; i++) opts += '<option value="' + i + '">' + i + (i === 0 ? ' · none' : i === 10 ? ' · worst' : '') + '</option>';
-    return '<section class="card checkin" id="ci" data-day="' + key(day.date) + '"><h3 style="font-size:18px">MARK COMPLETE</h3><p class="small" style="margin:4px 0 10px">Lets your coach see you finished.</p>' +
+    return '<section class="card checkin" id="ci" data-day="' + key(day.date) + '"><h3 style="font-size:18px">HOW DID IT GO?</h3><p class="small" style="margin:4px 0 10px">Optional. Saves your ankle score and notes, and marks the day complete.</p>' +
       '<select id="ci-ankle" aria-label="Ankle pain">' + opts + '</select>' +
       (mock ? '<div class="two"><input id="ci-pu" type="number" inputmode="numeric" min="0" placeholder="Push-ups"><input id="ci-pl" type="number" inputmode="numeric" min="0" placeholder="Plank (sec)"></div>' : '') +
       '<input id="ci-notes" type="text" maxlength="500" placeholder="Notes (optional)">' +
-      '<button class="btn" id="ci-btn" type="button">I FINISHED TODAY</button><p class="small" id="ci-msg" role="status"></p></section>';
+      '<button class="btn" id="ci-btn" type="button">SAVE AND MARK COMPLETE</button><p class="small" id="ci-msg" role="status"></p></section>';
   }
   function bindCheckin() {
     var c = document.getElementById('ci'); if (!c) return;
@@ -137,7 +175,7 @@
       btn.disabled = true; msg.textContent = 'Saving…';
       var a = document.getElementById('ci-ankle').value;
       rpc('submit_checkin', { p_code: code(), p_day: day, p_done: true, p_ankle: a === '' ? null : parseInt(a, 10), p_pushups: num('ci-pu'), p_plank: num('ci-pl'), p_notes: document.getElementById('ci-notes').value || null })
-        .then(function () { btn.disabled = false; show({}); })
+        .then(function () { btn.disabled = false; var m = doneMap(); m[day] = true; saveDone(m); show({}); if (!document.querySelector('#chk.on')) route(); })
         .catch(function () { btn.disabled = false; msg.textContent = 'Could not save. Check your connection and try again.'; });
     };
   }
@@ -261,6 +299,12 @@
   }
 
   function bind() {
+    var ck = document.getElementById('chk');
+    if (ck) ck.onclick = function () {
+      var dk = (parse((location.hash || '').replace(/^#\/?/, '')) || today()); dk = key(clamp(dk));
+      setDone(dk, !doneMap()[dk]); route();
+    };
+    syncDone();
     bindCheckin();
     var cp = document.getElementById('cp'), st = document.getElementById('st'), rc = document.getElementById('rc');
     if (cp) cp.onclick = function () {

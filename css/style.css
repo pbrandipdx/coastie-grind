@@ -98,3 +98,20 @@ details[open]>summary .chev{transform:rotate(180deg)}
 .mv{font-weight:600}.g{color:#1E7B45;font-weight:700}
 .x{border:0;background:none;font-size:24px;color:var(--muted);min-width:44px;min-height:44px;cursor:pointer}
 .tips{margin:0;padding-left:20px}.tips li{margin-bottom:8px}
+
+.streak{background:#fff;color:var(--ink);font:800 18px 'Archivo',sans-serif;padding:6px 12px;border-radius:99px;margin-right:auto;margin-left:12px}
+.strip a .mk{display:block;font-size:11px;font-weight:800;height:13px;line-height:13px}
+.strip a.done{background:#1E7B45;color:#fff}.strip a.done .d{color:#D7F0E1}
+.strip a.missed{background:var(--red);color:#fff}.strip a.missed .d{color:#FBD9D6}
+.strip a.today .n{color:var(--red)}.strip a.done.today .n,.strip a.missed.today .n{color:#fff}
+.strip a.sel{border-color:var(--blue)}
+.strip a.done.sel,.strip a.missed.sel{border-color:var(--ink)}
+.daycard{position:relative}
+.chk{position:absolute;top:14px;right:14px;width:56px;height:56px;border-radius:50%;border:3px solid var(--line);background:#fff;color:var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.chk svg{width:30px;height:30px}
+.chk.on{background:#1E7B45;border-color:#1E7B45;color:#fff}
+.chk:disabled{opacity:.4;cursor:default}
+.chk:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.daycard .dtitle{padding-right:64px}
+.chip.ok{background:#DDF1E6;color:#1E7B45}
+.daycard .kick{padding-right:64px}
