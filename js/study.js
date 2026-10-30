@@ -194,7 +194,7 @@
       h += '<button class="st-topic" type="button" data-act="start" data-mode="topic" data-topic="' + t.id + '"><span class="nm">' + esc(t.name) + '</span><span class="pc">' + p + '%</span><span class="st-mini" aria-hidden="true"><i style="width:' + p + '%"></i></span><span class="sm small">' + s.seen + ' of ' + s.total + ' seen' + (t.group === 'asvab' ? ' · ASVAB' : '') + '</span></button>';
     });
     h += '</div></section>';
-    h += '<p class="small" style="margin:0 0 6px">' + tot + ' written questions and 17 generated question types. Based on The Helmsman (the official recruit guide) plus general first-aid, UCMJ and ASVAB review. Unofficial; confirm anything important with your recruiter. Your progress is saved on this device.</p></main>';
+    h += '<p class="small" style="margin:0 0 6px">' + tot + ' written questions and 17 generated question types. Based on The Helmsman (the official recruit guide) plus general first-aid, UCMJ and ASVAB review. General Orders wording follows The Helmsman as closely as the sources allow; if your own copy differs, trust your Helmsman. Unofficial; confirm anything important with your recruiter. Your progress is saved on this device.</p></main>';
     return h;
   }
 

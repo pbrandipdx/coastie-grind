@@ -70,6 +70,11 @@
   Q('values', 'The Coast Guard is one of how many U.S. armed forces?', 'Six', ['Four', 'Five', 'Seven'], 'Army, Marine Corps, Navy, Air Force, Space Force and Coast Guard.');
   Q('values', 'Who is the current Commandant of the Coast Guard (as of fall 2026)?', 'Admiral Kevin E. Lunday', ['Admiral Linda Fagan', 'Admiral Karl Schultz', 'Admiral Paul Zukunft'], 'Lunday is the 28th Commandant, in office since January 15, 2026. Names change, so double-check this one on arrival.');
 
+  Q('values', 'Which three verbs appear in the Coast Guard Ethos?', 'Protect, defend, save', ['Serve, guard, rescue', 'Defend, rescue, enforce', 'Guard, protect, patrol'], '"We protect. We defend. We save."');
+  Q('values', 'What is the first line of the Coast Guard Ethos?', 'In Service to our Nation', ['We protect', 'Semper Paratus', 'With Honor, Respect, and Devotion to Duty'], 'The Ethos opens "In Service to our Nation, with Honor, Respect, and Devotion to Duty."');
+  Q('values', 'What is the last line of the Coast Guard Ethos?', 'We are the United States Coast Guard', ['We are Semper Paratus', 'We save', 'Always Ready'], 'It ends "We are Semper Paratus. We are the United States Coast Guard."');
+  Q('values', 'Which core value says "We work as a team" and "We value our diverse workforce"?', 'Respect', ['Honor', 'Devotion to Duty'], 'These lines are from Respect.');
+
   /* ---- Chain of Command & Customs ---- */
   Q('command', 'Who is the Commander-in-Chief of the armed forces?', 'The President', ['The Secretary of Homeland Security', 'The Commandant of the Coast Guard', 'The Secretary of Defense'], 'The President is at the top of every chain of command.');
   Q('command', 'Which Cabinet secretary sits between the President and the Commandant in the Coast Guard chain of command?', 'Secretary of Homeland Security', ['Secretary of Defense', 'Secretary of the Navy', 'Secretary of Transportation'], 'President, then Secretary of Homeland Security, then Commandant.');
@@ -84,6 +89,12 @@
   Q('command', 'What does "Aye, aye" mean?', 'I understand the order and will carry it out', ['I agree with you', 'Maybe I will', 'I have a question'], 'It is more than "yes": it is a promise to follow the order.');
   Q('command', 'A superior asks you a yes or no question. What is the correct reply?', '"Yes, Sir/Ma\'am" or "No, Sir/Ma\'am"', ['"Yeah" or "Nope"', '"Affirmative" or "Negative"', '"Aye" or "Nay"'], 'Use Sir or Ma\'am every time.');
   Q('command', 'Recruits start and end every sentence spoken to staff with what?', '"Sir" or "Ma\'am"', ['"Excuse me"', '"Please"', '"Respectfully"'], 'Address all personnel as Sir or Ma\'am at the start and end of sentences.');
+  Q('command', 'How many stages is Coast Guard recruit training divided into?', 'Six', ['Three', 'Four', 'Eight'], 'Arrival, Company Formation, Learning the Basics, Practical Training, Preparation for Your First Unit, Graduation.');
+  Q('command', 'Which stage comes right after Company Formation?', 'Learning the Basics', ['Practical Training', 'Arrival', 'Graduation'], 'Order: Arrival, Company Formation, Learning the Basics, Practical Training, Preparation for Your First Unit, Graduation.');
+  Q('command', 'The midterm exam is taken at the end of which week?', 'Week 4', ['Week 2', 'Week 6', 'Week 8'], 'The midterm comes at the end of week four.');
+  Q('command', 'Recruits receive their first-unit orders at the end of which week?', 'Week 5', ['Week 1', 'Week 3', 'Week 8'], 'Orders arrive at the end of week five.');
+  Q('command', 'What does "eyes in the boat" mean?', 'Look straight ahead at the position of attention', ['Look down at the deck', 'Watch the water', 'Look at whoever is speaking'], 'A Helmsman term for eyes straight ahead.');
+  Q('command', 'How many paid days of leave do members earn per year?', '30', ['10', '14', '21'], 'Thirty days of paid leave a year.');
   Q('command', 'In the position of attention, your feet form about what angle?', '45 degrees', ['90 degrees', 'Parallel (0 degrees)', '180 degrees'], 'Heels together, feet at about 45 degrees, eyes forward.');
   Q('command', 'What does a salute recognize?', 'The other person\'s seniority', ['That you are in a hurry', 'That you outrank them', 'A friendly greeting'], 'A salute recognizes seniority and is paired with a proper greeting, such as "Sir, Good Morning, Sir."');
   Q('command', 'Which hand do you use to salute?', 'Right hand', ['Left hand', 'Whichever is free', 'Either hand'], 'The right hand.');
@@ -111,11 +122,16 @@
   Q('ranks', 'Who is the senior enlisted member of the whole Coast Guard?', 'Master Chief Petty Officer of the Coast Guard (MCPOCG)', ['Command Master Chief of Cape May', 'Vice Commandant', 'Chief Warrant Officer 4'], 'The MCPOCG advises the Commandant on enlisted matters.');
   Q('ranks', 'Which of these is an enlisted rate, not an officer rank?', 'Senior Chief Petty Officer', ['Ensign', 'Chief Warrant Officer 2', 'Commander'], 'Senior Chief Petty Officer is E-8.');
 
+  Q('ranks', 'How is a Boatswain\'s Mate Second Class written as an abbreviation?', 'BM2', ['2BM', 'PO2BM', 'BMSN'], 'For E-4 to E-6 the rating comes first, then the rate number: BM1, BM2, BM3.');
+  Q('ranks', 'What do the endings C, CS and CM mean on a rating abbreviation like BMC, BMCS, BMCM?', 'Chief, Senior Chief, Master Chief (E-7, E-8, E-9)', ['Cadet, Captain, Commander', 'Cutter, Crew, Command', 'Coxswain, Corpsman, Commander'], 'E-7 adds C, E-8 adds CS, E-9 adds CM.');
+  Q('ranks', 'What is a "non-rate"?', 'A member in E-1 to E-3 who has no rating yet', ['A civilian employee', 'A recruit who failed a test', 'An officer without a command'], 'Most E-1 to E-3 members have no rating (specialty) yet.');
+  Q('ranks', 'The Master Chief Petty Officer of the Coast Guard is the principal advisor to the Commandant on what?', 'Enlisted matters', ['Budget', 'Aviation', 'Law enforcement'], 'The MCPOCG is the senior-most enlisted member.');
+  Q('ranks', 'Which pair is correct?', 'Seaman Recruit is E-1 and Seaman is E-3', ['Seaman is E-1 and Seaman Recruit is E-3', 'Seaman Apprentice is E-1', 'Seaman Recruit is E-4'], 'E-1 Seaman Recruit, E-2 Seaman Apprentice, E-3 Seaman.');
+
   /* ---- 11 General Orders ---- */
   Q('orders', 'How many General Orders of a Sentry are there?', '11', ['5', '10', '12'], 'There are eleven. Learn them word for word.');
   Q('orders', 'A sentry may quit his post only when:', 'Properly relieved', ['He is tired', 'His shift ends by the clock', 'Another recruit asks him to'], 'General Order 5.');
-  Q('orders', 'Who may give a sentry orders to receive, obey and pass on (General Order 6)?', 'Commanding Officer, Command Duty Officer, Officer of the Deck, and Officers and Petty Officers of the Watch', ['Any officer', 'Any petty officer', 'Anyone standing on the quarterdeck'], 'Only those listed in General Order 6.');
-  Q('orders', 'A sentry faces a situation not covered by his instructions. Whom does he call?', 'The Officer of the Deck', ['A nearby sailor', 'The Company Commander', 'Nobody; use own judgment'], 'General Order 9.');
+  Q('orders', 'A sentry faces a situation not covered by his instructions. Whom does he call?', 'The petty officer of the watch', ['A nearby sailor', 'The Company Commander', 'Nobody; use own judgment'], 'General Order 9 as printed in The Helmsman. Some other versions say Officer of the Deck, so learn the exact wording from your own Helmsman.');
   Q('orders', 'What should a sentry do if fire or disorder breaks out?', 'Give the alarm', ['Leave the post to help', 'Finish the patrol first', 'Wait to be told'], 'General Order 8: give the alarm in case of fire or disorder.');
   Q('orders', 'A sentry should talk to no one except:', 'In the line of duty', ['Friends', 'Other sentries', 'Visitors'], 'General Order 7.');
 
@@ -151,10 +167,18 @@
   Q('swimfit', 'For the swim qualification, you jump into the pool from what height?', 'A six-foot platform', ['A three-foot platform', 'A ten-foot platform', 'Poolside'], 'Jump from a six-foot platform, swim 100 meters, then tread water for five minutes.');
   Q('swimfit', 'How far must you swim in the swim qualification?', '100 meters', ['25 meters', '50 meters', '200 meters'], '100 meters after the jump.');
   Q('swimfit', 'How long must you tread water?', 'Five minutes', ['One minute', 'Two minutes', 'Ten minutes'], 'Five minutes of treading water.');
-  Q('swimfit', 'True or false: you may swim on your back during the swim qualification.', 'False', ['True'], 'Backstroke (swimming on your back) is not permitted.');
+  Q('swimfit', 'True or false: you may swim on your back during the swim qualification.', 'False', ['True'], 'The Helmsman says swimming on your back is not permitted. Some unofficial sites say any stroke works, so follow your swim instructor.');
   Q('swimfit', 'In this plan, how many push-ups in 60 seconds is the goal?', '15', ['10', '20', '29'], '15 is the target here (women under 30). 29 is the men\'s standard.');
   Q('swimfit', 'In this plan, what forearm plank time is the goal?', '1:09', ['0:45', '1:30', '2:00'], '1 minute 9 seconds.');
-  Q('swimfit', 'In this plan, what is the goal time for the 1.5-mile run?', 'Under 15:05', ['Under 12:51', 'Under 16:30', 'Under 18:00'], '15:05 for the plan; 12:51 is the men\'s standard.');
+  Q('swimfit', 'In this plan, what is the goal time for the 1.5-mile run?', 'Under 15:05', ['Under 12:29', 'Under 16:30', 'Under 18:00'], 'Under 15:05 for women under 30. The men\'s standard is under 12:29.');
+  Q('swimfit', 'What are the three events of the current Coast Guard fitness test?', 'Push-ups, forearm plank, and a 1.5-mile run', ['Sit-ups, pull-ups, and a 3-mile run', 'Push-ups, sit-ups, and sit-and-reach', 'Pull-ups, plank, and a 5K row'], 'Older guides still list sit-ups and sit-and-reach. The current standard uses push-ups, plank and the run.');
+  Q('swimfit', 'Older guides list 38 sit-ups and a 15:26 run for women. What do the current standards use for women under 30?', '15 push-ups, a 1:09 plank, and a 15:05 run', ['32 sit-ups and a 15:26 run', '20 push-ups and a 14:00 run', '15 push-ups and a 1:30 plank'], 'The gocoastguard.com page lists 15 push-ups, 1:09 plank, and a 15:05 run for women. Always confirm with your recruiter.');
+  Q('swimfit', 'What is the men\'s forearm plank standard (under 30)?', '1:18', ['1:09', '1:30', '2:00'], 'Men 1:18, women 1:09.');
+  Q('swimfit', 'What is the men\'s 1.5-mile run standard (under 30)?', 'Under 12:29', ['Under 15:05', 'Under 12:51', 'Under 14:00'], 'Men under 12:29, women under 15:05.');
+  Q('swimfit', 'The 1.5-mile run can be swapped for which cardio events?', 'A 2,000-meter row or a 12-minute swim', ['A 3-mile bike ride', 'A stair climb', 'Nothing; the run is required'], 'Published reports on the new fitness test list the row and the 12-minute swim as alternatives. Pick the event before the test starts.');
+  Q('swimfit', 'What is the women\'s 2,000-meter row standard (under 30)?', 'Under 10:40', ['Under 9:20', 'Under 12:00', 'Under 8:00'], 'Reported standards: women under 10:40, men under 9:20.');
+  Q('swimfit', 'In the 12-minute swim option, how far must women under 30 swim?', '400 yards', ['100 yards', '200 yards', '500 yards'], 'Reported standards: women 400 yards, men 500 yards.');
+  Q('swimfit', 'When is the swim assessment during boot camp?', 'Week two', ['Week one', 'Week four', 'Week seven'], 'Recruits get a swim assessment around week two.');
   Q('swimfit', 'How many laps of a quarter-mile track make 1.5 miles?', '6', ['3', '4', '12'], '1.5 miles = 6 quarter-mile laps.');
   Q('swimfit', 'If an exercise hurts your ankle, what should you do?', 'Stop and check with your PT or doctor', ['Push through it', 'Ignore it until tomorrow', 'Add more weight'], 'Pain is a stop sign. Protect the ankle so you can ship on time.');
 
@@ -346,7 +370,7 @@
   });
 
   /* --- General Orders --- */
-  var GO = ['To take charge of this post and all government property in view.', 'To walk my post in a military manner, keeping always on the alert and observing everything that takes place within sight or hearing.', 'To report all violations of orders I am instructed to enforce.', 'To repeat all calls from posts more distant from the guardhouse than my own.', 'To quit my post only when properly relieved.', 'To receive, obey, and pass on to the sentry who relieves me all orders from the Commanding Officer, Command Duty Officer, Officer of the Deck, and Officers and Petty Officers of the Watch only.', 'To talk to no one except in the line of duty.', 'To give the alarm in case of fire or disorder.', 'To call the Officer of the Deck in any case not covered by instructions.', 'To salute all officers and all colors and standards not cased.', 'To be especially watchful at night and during the time for challenging, to challenge all persons on or near my post, and to allow no one to pass without proper authority.'];
+  var GO = ['To take charge of this post and all government property in view.', 'To walk my post in a military manner, keeping always on the alert and observing everything that takes place within sight or hearing.', 'To report all violations of orders I am instructed to enforce.', 'To repeat all calls from posts more distant from the guardhouse than my own.', 'To quit my post only when properly relieved.', 'To receive, obey, and pass on to the sentry who relieves me all orders from the Commanding Officer, Field Officer of the Day, Officer of the Day, and Watch Officers or Petty Officers.', 'To talk to no one except in the line of duty.', 'To give the alarm in case of fire or disorder.', 'To call the Petty Officer of the Watch in any case not covered by instructions.', 'To salute all officers and all colors and standards not cased.', 'To be especially watchful at night and during the time for challenging, to challenge all persons on or near my post, and to allow no one to pass without proper authority.'];
   G('orders', 'gorders', 4, function () {
     var n = rint(0, 10), nums = GO.map(function (_, i) { return 'General Order ' + (i + 1); });
     if (Math.random() < 0.5) return { q: 'Which General Order is this? "' + GO[n] + '"', a: nums[n], w: uniqWrong(nums[n], nums, 3), e: nums[n] + ': ' + GO[n] };
