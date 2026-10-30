@@ -58,7 +58,7 @@
 
   function header(active) {
     var left = Math.max(0, Math.round((SHIPD - today()) / 86400000));
-    var tabs = [['day', '#/', 'TODAY'], ['plan', '#/plan', 'PLAN'], ['tests', '#/tests', 'TESTS'], ['fuel', '#/fuel', 'FUEL']];
+    var tabs = [['day', '#/', 'TODAY'], ['plan', '#/plan', 'PLAN'], ['tests', '#/tests', 'TESTS'], ['study', '#/study', 'STUDY'], ['fuel', '#/fuel', 'FUEL']];
     if (code()) tabs.push(['family', '#/family', 'LOG']);
     return '<header class="head"><div class="head-top">' + FLAGS + (streak() > 0 ? '<div class="streak" title="Days in a row" aria-label="' + streak() + ' day streak">🔥 ' + streak() + '</div>' : '') + '<div class="count" style="margin:0;text-align:right">' + (left > 0 ? left + ' DAYS TO SHIP DAY<br>TUE JAN 12' : 'SHIP DAY') + '</div></div>' +
       '<div class="brand">THE COASTIE GRIND</div>' +
@@ -114,7 +114,7 @@
       if (day.title === 'Mock Test') h += '<a class="btn" style="text-decoration:none" href="#/tests">LOG YOUR TEST RESULTS</a><div style="height:14px"></div>';
       h += code() ? checkinHTML(day) : '';
       var txt = P.stravaText(day);
-      h += '<section class="strava"><h3>AFTER YOU FINISH</h3><p>Copy this and paste it into the Strava description.</p><textarea id="st" readonly rows="8" aria-label="Workout text for Strava">' + esc(txt) + '</textarea><button class="btn" id="cp" type="button">COPY FOR STRAVA</button></section>';
+      h += '<section class="strava"><h3>AFTER YOU FINISH</h3><p>Copy this and paste it into the Strava description.</p><textarea id="st" readonly rows="16" aria-label="Workout text for Strava">' + esc(txt) + '</textarea><button class="btn" id="cp" type="button">COPY FOR STRAVA</button></section>';
     }
     h += '<div class="card"><label class="toggle"><input type="checkbox" id="rc" ' + (rc ? 'checked' : '') + '><span><b>My PT or doctor cleared me to run</b><br><span class="small">Off: bike, elliptical and rower only. On: run sessions appear from Week 4.</span></span></label></div></main>' + FOOT;
     app.innerHTML = h;
@@ -298,6 +298,12 @@
     document.title = 'Fuel and Recover · THE COASTIE GRIND'; window.scrollTo(0, 0);
   }
 
+  function renderStudy() {
+    var ctx = { app: app, header: header('study'), foot: FOOT, esc: esc, store: store, key: key, today: today, chev: CHEV };
+    if (!window.CGStudy) { app.innerHTML = ctx.header + '<main class="wrap"><div class="card"><p>The study tools did not load. Refresh the page and try again.</p></div></main>' + FOOT; return; }
+    window.CGStudy.render(ctx);
+  }
+
   function bind() {
     var ck = document.getElementById('chk');
     if (ck) ck.onclick = function () {
@@ -328,6 +334,7 @@
     var h = (location.hash || '').replace(/^#\/?/, '');
     var j = /^join\/([A-Za-z0-9]+)$/.exec(h);
     if (j) { store('cg.code', j[1]); location.replace('#/'); return; }
+    if (h === 'study') return renderStudy();
     if (h === 'tests') return renderTests();
     if (h === 'fuel') return renderFuel();
     if (h === 'family') return renderFamily();

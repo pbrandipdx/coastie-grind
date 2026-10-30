@@ -12,3 +12,9 @@ Unofficial training plan. Not affiliated with or endorsed by the U.S. Coast Guar
 After a workout she taps "I finished today" (ankle score, notes, and push-ups/plank on test days). Data goes to Supabase through two functions, `submit_checkin` and `list_checkins`, both gated by a secret family code stored in the `family_code` table (never in this repo). The tables themselves are locked by RLS.
 - Open `#/join/<code>` once on her phone to unlock check-ins.
 - Open `#/family` to see the check-in log. The Tests tab logs push-ups, plank and run/row times against the pass marks (shared through the same code).
+
+## Study tab (`#/study`)
+Adaptive mock tests for everything she needs for Coast Guard recruit training: core values and history, chain of command and customs, ranks and rates, the 11 General Orders, phonetic alphabet and military time, nautical terms, the swim and fitness tests, first aid and CPR, UCMJ, plus optional ASVAB review.
+- `js/questions.js` is the question bank. Add a line like `Q('topic', 'question', 'right answer', ['wrong 1', 'wrong 2', 'wrong 3'], 'why');` and it flows into every test. Generated questions (pace math, military time, ranks, general orders, etc.) use fresh numbers each time.
+- `js/study.js` is the engine. Each answer moves a question up or down a spaced-repetition box, and every new test is built from what she missed, what is due, and her weakest topics.
+- Progress is saved in her browser only (not Supabase). Sources: The Helmsman (official recruit guide) plus general first-aid, UCMJ and ASVAB review. Unofficial.

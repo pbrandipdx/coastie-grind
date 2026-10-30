@@ -188,15 +188,23 @@
 
   function stravaText(day) {
     if (day.state !== 'train') return '';
-    var lines = ['THE COASTIE GRIND · Wk ' + day.week + ' · ' + day.title + ' · ' + day.label];
+    var lines = ['THE COASTIE GRIND · Wk ' + day.week + ' · ' + day.title + ' · ' + day.label, ''];
     day.blocks.forEach(function (b) {
       var bits = b.items.filter(function (i) { return i.ex || i.dose; }).map(function (i) {
         var lib = (typeof EXERCISES !== 'undefined' ? EXERCISES : root.EXERCISES) || {}; var nm = i.ex ? lib[i.ex] : null;
-        return (nm ? nm.name : i.label) + (i.dose ? ' ' + i.dose : '');
+        return '• ' + (nm ? nm.name : i.label) + (i.dose ? ' ' + i.dose : '');
       });
-      lines.push(b.name + ' (' + b.minutes + ' min): ' + bits.join(', '));
+      lines.push(b.name.toUpperCase() + ' (' + b.minutes + ' min)');
+      Array.prototype.push.apply(lines, bits);
+      lines.push('');
     });
-    if (day.title === 'Mock Test') lines.push('Push-ups: ___ in 60 sec · Plank: ___ · Cardio: ___');
+    if (day.title === 'Mock Test') {
+      lines.push('RESULTS');
+      lines.push('• Push-ups: ___ in 60 sec');
+      lines.push('• Plank: ___');
+      lines.push('• Cardio: ___');
+      lines.push('');
+    }
     lines.push('Ankle: ___/10');
     return lines.join('\n');
   }
